@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function dm_kaizin_send_webhook( int $user_id, string $action, array $args = [] ) {
+function dm_kaizin_send_webhook( int $user_id, string $action, array $args = [], bool $allow_missing_password = false ) {
 	$options = dm_kaizin_get_options();
 	if ( ! dm_kaizin_is_action_allowed( $action ) ) {
 		return false;
@@ -24,7 +24,7 @@ function dm_kaizin_send_webhook( int $user_id, string $action, array $args = [] 
 		$missing_fields[] = 'password';
 	}
 	if ( 'change_password' === $action ) {
-		if ( empty( $args['password'] ) ) {
+		if ( empty( $args['password'] ) && ! $allow_missing_password ) {
 			$missing_fields[] = 'password';
 		}
 		if ( empty( $args['new_password'] ) ) {
@@ -38,9 +38,11 @@ function dm_kaizin_send_webhook( int $user_id, string $action, array $args = [] 
 	$token = get_user_meta( $user_id, '_kaizin_token', true );
 	$endpoint = dm_kaizin_get_webhook_config( $action );
 	$endpoint['body']['email'] = $email;
-	$endpoint['body']['password'] = $password;
+	if ( $password !== '' ) {
+		$endpoint['body']['password'] = $password;
+	}
 
-	if ( 'change_password' === $action ) {
+	if ( 'change_password' === $action && $new_password !== '' ) {
 		$endpoint['body']['newPassword'] = $new_password;
 	}
 	if ( in_array( $action, [ 'subscribe', 'unsubscribe' ], true ) ) {

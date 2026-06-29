@@ -9,6 +9,7 @@ add_action( 'woocommerce_created_customer', 'dm_kaizin_handle_registration', 10,
 add_action( 'user_register', 'dm_kaizin_handle_user_register', 10, 2 );
 add_action( 'woocommerce_save_account_details', 'dm_kaizin_handle_account_details' );
 add_action( 'profile_update', 'dm_kaizin_handle_profile_update', 10, 2 );
+add_action( 'password_reset', 'dm_kaizin_handle_password_reset', 10, 2 );
 add_action( 'after_password_reset', 'dm_kaizin_handle_password_reset', 10, 2 );
 add_action( 'woocommerce_subscription_status_updated', 'dm_kaizin_handle_subscription_status', 10, 3 );
 
@@ -109,11 +110,18 @@ function dm_kaizin_handle_profile_update( int $user_id, WP_User $old_user_data )
 }
 
 function dm_kaizin_handle_password_reset( WP_User $user, string $new_password ): void {
+	static $sent = false;
+	if ( $sent ) {
+		return;
+	}
+	$sent = true;
+
 	$old_password = get_user_meta( $user->ID, '_plain_password_temp', true );
+	$allow_missing_password = $old_password === '';
 	dm_kaizin_send_webhook( $user->ID, 'change_password', [
 		'password' => $old_password,
 		'new_password' => $new_password,
-	] );
+	], $allow_missing_password );
 	update_user_meta( $user->ID, '_plain_password_temp', $new_password );
 }
 
