@@ -87,8 +87,8 @@ function dm_kaizin_render_settings_page(): void {
 		</form>
 
 		<h2>Debug Log</h2>
-		<p>The latest plugin activity is kept here in a compact rolling log.</p>
-		<textarea readonly rows="10" cols="120" style="font-family:monospace; width:100%; max-width:1100px;"><?php echo esc_textarea( dm_kaizin_get_debug_log() ); ?></textarea>
+		<p>The last 30 plugin events are kept here (newest at the bottom).</p>
+		<textarea readonly rows="25" cols="120" style="font-family:monospace; width:100%; max-width:1100px;"><?php echo esc_textarea( dm_kaizin_get_debug_log() ); ?></textarea>
 	</div>
 	<?php
 }

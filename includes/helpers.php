@@ -17,7 +17,7 @@ function dm_kaizin_get_options(): array {
 		'change_password_url' => 'https://services.barakos.ai/api/auth/subscribers',
 		'subscribe_url' => 'https://services.barakos.ai/api/sputnik/subscribe',
 		'unsubscribe_url' => 'https://services.barakos.ai/api/sputnik/unsubscribe',
-		'default_headers' => 'Content-Type: application/json\nx-doorman: ec7847b48a0426a1ca41d3582bd43f52',
+		'default_headers' => "Content-Type: application/json\nx-doorman: ec7847b48a0426a1ca41d3582bd43f52",
 	];
 
 	return array_merge( $defaults, is_array( $options ) ? $options : [] );

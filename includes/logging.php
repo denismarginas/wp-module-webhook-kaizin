@@ -36,16 +36,19 @@ function dm_kaizin_log_webhook( string $action, string $url, array $payload, $re
 function dm_kaizin_append_debug_log( string $message ): void {
 	$upload_dir = wp_upload_dir();
 	$debug_log_file = trailingslashit( $upload_dir['basedir'] ) . 'kaizin-debug.log';
-	$entry = sprintf( '[%s] %s', date( 'Y-m-d H:i:s' ), $message );
+	// Collapse newlines so each entry stays on one line.
+	$entry = sprintf( '[%s] %s', date( 'Y-m-d H:i:s' ), preg_replace( '/[\r\n]+/', ' ', $message ) );
 	$existing = file_exists( $debug_log_file ) ? trim( file_get_contents( $debug_log_file ) ) : '';
 	$lines = $existing !== '' ? explode( "\n", $existing ) : [];
 	$lines[] = $entry;
 
-	while ( strlen( implode( "\n", $lines ) ) > 800 ) {
-		array_shift( $lines );
+	// Keep the last DM_KAIZIN_DEBUG_LOG_ENTRIES entries (one entry per line).
+	$max_entries = defined( 'DM_KAIZIN_DEBUG_LOG_ENTRIES' ) ? (int) DM_KAIZIN_DEBUG_LOG_ENTRIES : 30;
+	if ( count( $lines ) > $max_entries ) {
+		$lines = array_slice( $lines, -$max_entries );
 	}
 
-	file_put_contents( $debug_log_file, implode( "\n", $lines ) );
+	file_put_contents( $debug_log_file, implode( "\n", $lines ), LOCK_EX );
 }
 
 function dm_kaizin_get_debug_log(): string {
